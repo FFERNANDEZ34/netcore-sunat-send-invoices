@@ -18,7 +18,7 @@ namespace Infrastructure.Communication
             _httpClient = httpClient;
         }
 
-        public async Task<SunatResponseResult> SendBillAsync(byte[] zipBytes, string fileName, string rucEmisor)
+        public async Task<SunatResponseResult> SendBillAsync(byte[] zipBytes, string fileName, string rucEmisor, string sunatUsuario, string sunatClave)
         {
             try
             {
@@ -34,8 +34,8 @@ namespace Infrastructure.Communication
                 envelope.AppendLine("   <soapenv:Header>");
                 envelope.AppendLine("       <wsse:Security>");
                 envelope.AppendLine("           <wsse:UsernameToken>");
-                envelope.AppendLine($"               <wsse:Username>{rucEmisor}MODDATOS</wsse:Username>"); // Sincronizado automáticamente con el emisor real
-                envelope.AppendLine("               <wsse:Password>MODDATOS</wsse:Password>");
+                envelope.AppendLine($"               <wsse:Username>{rucEmisor}{sunatUsuario}</wsse:Username>"); // Sincronizado automáticamente con el emisor real
+                envelope.AppendLine($"               <wsse:Password>{sunatClave}</wsse:Password>");
                 envelope.AppendLine("           </wsse:UsernameToken>");
                 envelope.AppendLine("       </wsse:Security>");
                 envelope.AppendLine("   </soapenv:Header>");

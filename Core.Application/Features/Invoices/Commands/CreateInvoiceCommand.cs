@@ -20,7 +20,7 @@ namespace Core.Application.Features.Invoices.Commands
         public string TipoComprobante { get; init; } = "01"; // 01: Factura, 03: Boleta
         public DateTime FechaEmision { get; init; }
         public string Moneda { get; init; } = "PEN";
-
+        public string FormaPago { get; init; } = "Contado";
         public EmisorDto Emisor { get; init; } = null!;
         public ReceptorDto Receptor { get; init; } = null!;
 
@@ -33,7 +33,8 @@ namespace Core.Application.Features.Invoices.Commands
     }
 
     public record EmisorDto(string Ruc, string RazonSocial, string Ubigeo, string Direccion, string CertificadoUrl,   // 👉 URL pública o pre-firmada de Cloudflare R2
-    string CertificadoClave);
+    string CertificadoClave, string SunatUsuario,
+    string SunatClave);
     public record ReceptorDto(string TipoDocumento, string NumeroDocumento, string RazonSocial); // 6=RUC, 1=DNI
 
     public record InvoiceLineDto(

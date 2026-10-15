@@ -81,7 +81,7 @@ namespace Infrastructure.XmlServices
             // ------------------------------------------------------------
             sb.AppendLine("    <cac:PaymentTerms>");
             sb.AppendLine("        <cbc:ID>FormaPago</cbc:ID>");
-            sb.AppendLine("        <cbc:PaymentMeansID>Contado</cbc:PaymentMeansID>");
+            sb.AppendLine($"        <cbc:PaymentMeansID>{command.FormaPago}</cbc:PaymentMeansID>");
             sb.AppendLine("    </cac:PaymentTerms>");
 
             // 🎯 6. Impuesto Global de la Factura (TaxTotal)

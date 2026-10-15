@@ -22,7 +22,7 @@ namespace Core.Application.Interfaces
 
     public interface ISunatSoapClient
     {
-        Task<SunatResponseResult> SendBillAsync(byte[] zipBytes, string fileName, string rucEmisor);
+        Task<SunatResponseResult> SendBillAsync(byte[] zipBytes, string fileName, string rucEmisor, string sunatUsuario, string sunatClave);
     }
 
     // DTOs de soporte para las interfaces

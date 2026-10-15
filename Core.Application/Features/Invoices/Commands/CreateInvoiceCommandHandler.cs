@@ -35,7 +35,7 @@ namespace Core.Application.Features.Invoices.Commands
                 string xmlRaw = _xmlGenerator.GenerateInvoiceXml(request);
 
                 // 2. Firmar digitalmente con el estándar W3C XMLDsig usando URI="" inmutable
-                var (xmlSigned, xmlHash) = await _cryptoSigner.SignXmlAsync(xmlRaw, request.Emisor.Ruc, request.Emisor.CertificadoUrl,request.Emisor.CertificadoClave);
+                var (xmlSigned, xmlHash) = await _cryptoSigner.SignXmlAsync(xmlRaw, request.Emisor.Ruc, request.Emisor.CertificadoUrl, request.Emisor.CertificadoClave);
 
                 // 3. Comprimir a formato ZIP directamente en memoria (Alto rendimiento)
                 string nombreArchivo = $"{request.Emisor.Ruc}-{request.TipoComprobante}-{request.Serie}-{request.Correlativo:D8}";
@@ -43,29 +43,29 @@ namespace Core.Application.Features.Invoices.Commands
                 // ============================================================
                 // 🎯 NUEVO: GUARDADO DE AUDITORÍA LOCAL EN DESARROLLO
                 // ============================================================
-                try
-                {
-                    string carpetaAuditoria = Path.Combine(AppContext.BaseDirectory, "XmlAuditoria");
-                    if (!Directory.Exists(carpetaAuditoria))
-                    {
-                        Directory.CreateDirectory(carpetaAuditoria);
-                    }
+                //try
+                //{
+                //    string carpetaAuditoria = Path.Combine(AppContext.BaseDirectory, "XmlAuditoria");
+                //    if (!Directory.Exists(carpetaAuditoria))
+                //    {
+                //        Directory.CreateDirectory(carpetaAuditoria);
+                //    }
 
-                    string rutaXmlLocal = Path.Combine(carpetaAuditoria, $"{nombreArchivo}.xml");
-                    await File.WriteAllTextAsync(rutaXmlLocal, xmlSigned, System.Text.Encoding.UTF8, cancellationToken);
+                //    string rutaXmlLocal = Path.Combine(carpetaAuditoria, $"{nombreArchivo}.xml");
+                //    await File.WriteAllTextAsync(rutaXmlLocal, xmlSigned, System.Text.Encoding.UTF8, cancellationToken);
 
-                    Console.WriteLine($"[AUDITORÍA] XML Firmado guardado con éxito en: {rutaXmlLocal}");
-                }
-                catch (Exception ex)
-                {
-                    // Un fallo al escribir la auditoría local no debe tumbar la operación de facturación principal
-                    Console.WriteLine($"[ADVERTENCIA] No se pudo guardar el XML local de auditoría: {ex.Message}");
-                }
+                //    Console.WriteLine($"[AUDITORÍA] XML Firmado guardado con éxito en: {rutaXmlLocal}");
+                //}
+                //catch (Exception ex)
+                //{
+                //    // Un fallo al escribir la auditoría local no debe tumbar la operación de facturación principal
+                //    Console.WriteLine($"[ADVERTENCIA] No se pudo guardar el XML local de auditoría: {ex.Message}");
+                //}
 
                 byte[] zipBytes = _zipService.CompressToZip(xmlSigned, nombreArchivo);
 
                 // 4. Enviar los bytes empaquetados al Web Service SOAP de SUNAT (Servidor BETA/PROD)
-                var resultadoSunat = await _sunatClient.SendBillAsync(zipBytes, $"{nombreArchivo}.zip", request.Emisor.Ruc);
+                var resultadoSunat = await _sunatClient.SendBillAsync(zipBytes, $"{nombreArchivo}.zip", request.Emisor.Ruc, request.Emisor.SunatUsuario, request.Emisor.SunatClave);
 
                 // 5. Analizar la Constancia de Recepción (CDR) devuelta por SUNAT
                 if (resultadoSunat.Success && resultadoSunat.CdrBytes != null)
