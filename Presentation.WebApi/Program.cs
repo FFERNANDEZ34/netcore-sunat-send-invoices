@@ -2,16 +2,15 @@
 using FluentValidation;
 using Infrastructure.Communication;
 using Infrastructure.Cryptography;
+using Infrastructure.Storage;
 using Infrastructure.XmlServices;
 using Infrastructure.Zip;
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models; 
-
-using System.Text;
 using System.Globalization;
+using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -75,19 +74,22 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.Configure<RequestLocalizationOptions>(options =>
-{
-    CultureInfo cultureenUs = new CultureInfo("en-US");
-    cultureenUs.NumberFormat.NumberDecimalSeparator = ".";
-    CultureInfo cultureen = new CultureInfo("en");
-    cultureen.NumberFormat.NumberDecimalSeparator = ".";
+//builder.Services.Configure<RequestLocalizationOptions>(options =>
+//{
+//    CultureInfo cultureenUs = new CultureInfo("en-US");
+//    cultureenUs.NumberFormat.NumberDecimalSeparator = ".";
+//    CultureInfo cultureen = new CultureInfo("en");
+//    cultureen.NumberFormat.NumberDecimalSeparator = ".";
 
-    var supportedCultures = new[] { cultureenUs, cultureen };
+//    var supportedCultures = new[] { cultureenUs, cultureen };
 
-    options.DefaultRequestCulture = new RequestCulture("en-US");
-    options.SupportedCultures = supportedCultures;
-    options.SupportedUICultures = supportedCultures;
-});
+//    options.DefaultRequestCulture = new RequestCulture("en-US");
+//    options.SupportedCultures = supportedCultures;
+//    options.SupportedUICultures = supportedCultures;
+//});
+CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+
 
 builder.Services.AddAuthorization();
 
@@ -129,10 +131,22 @@ builder.Services.AddTransient<IXmlGenerator, UblXmlGenerator>();
 builder.Services.AddTransient<ICryptoSigner, W3cXmlSigner>();
 builder.Services.AddTransient<IZipService, ZipService>();
 
+builder.Services.AddTransient<IStorageService, CloudflareStorageService>();
 
 
 //builder.Services.AddAuthorization();
 
+builder.Services.AddCors(
+    opt =>
+    opt.AddPolicy(
+        name: "mycors",
+        builder =>
+        {
+            builder.WithOrigins("*");
+        }
+        )
+
+    );
 
 var app = builder.Build();
 

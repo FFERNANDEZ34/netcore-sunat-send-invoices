@@ -35,7 +35,7 @@ namespace Core.Application.Features.Invoices.Commands
 
                 // Redondeo estricto por ítem para evitar fugas de centavos
                 linea.RuleFor(l => l.TotalLinea)
-                    .Equal(l => Math.Round(l.Cantidad * l.ValorUnitario, 2))
+                    .Equal(l => Math.Round(l.Cantidad * l.ValorUnitario, 4))
                     .WithMessage(l => $"Línea {l.Id}: El total informado ({l.TotalLinea}) no cuadra matemáticamente con Cantidad * ValorUnitario.");
             });
 

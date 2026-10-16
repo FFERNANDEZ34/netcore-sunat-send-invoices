@@ -8,7 +8,8 @@ namespace Core.Application.Features.Invoices.Commands
         string SunatResponseCode,
         string Message,
         string XmlHash,
-        string CdrXmlBase64,
+        string XmlUrl,      
+        string CdrUrl,      
         List<string> Observations
     );
 
