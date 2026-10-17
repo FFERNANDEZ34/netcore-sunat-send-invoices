@@ -1,29 +1,34 @@
 # Etapa 1: Construcción y Compilación (SDK de .NET 9)
-FROM ://microsoft.com AS build
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+
 WORKDIR /src
 
-# Copiar archivos de proyectos (.csproj) respetando las mayúsculas exactas
+# Copiar archivos de proyectos (.csproj)
 COPY ["Presentation.WebApi/Presentation.WebApi.csproj", "Presentation.WebApi/"]
 COPY ["Infrastructure/Infrastructure.csproj", "Infrastructure/"]
 COPY ["Core.Application/Core.Application.csproj", "Core.Application/"]
 
-# Restaurar dependencias de la API principal
+# Restaurar dependencias
 RUN dotnet restore "Presentation.WebApi/Presentation.WebApi.csproj"
 
-# Copiar todo el resto del código fuente al contenedor
+# Copiar el resto del código fuente
 COPY . .
 
-# Compilar el proyecto de presentación en modo Release
+# Publicar la aplicación
 WORKDIR "/src/Presentation.WebApi"
 RUN dotnet publish "Presentation.WebApi.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Etapa 2: Entorno de ejecución (Runtime de .NET 9)
-FROM ://microsoft.com AS final
+# Etapa 2: Runtime (.NET 9)
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
+
 WORKDIR /app
+
 COPY --from=build /app/publish .
 
-# Render expone los contenedores en el puerto 10000 por defecto
+# Puerto utilizado por Render
 ENV ASPNETCORE_URLS=http://+:10000
 
-# Ejecutar la API apuntando a la DLL con su nombre exacto
+EXPOSE 10000
+
+# Ejecutar la API
 ENTRYPOINT ["dotnet", "Presentation.WebApi.dll"]
